@@ -3,7 +3,7 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY, MAIL_ID, URL } = require("../utils/config");
 const transporter = require("../utils/transporter");
-const randomString = require("../utils/randomString");
+const OTPG = require("../utils/OTPG");
 
 const userController = {
   register: async (request, response) => {
@@ -24,35 +24,11 @@ const userController = {
         email,
         password: hashedPassword,
       });
-
-      const savedUser = await newUser.save();
-      transporter.sendMail({
-        from: MAIL_ID,
-        to: email,
-        subject: "Activate your account",
-        text: `Click here to Activate your account: ${URL}/activate/${savedUser._id}`,
-      });
-
+      await newUser.save();
       response.status(200).json({ message: "user successfully created" });
     } catch (error) {
       response.status(500).send({ message: error.message });
     }
-  },
-  activate: async (request, response) => {
-    const id = request.params.id;
-
-    const user = await User.findById(id);
-
-    if (!user) {
-      return response.status(404).json({ message: "user not found" });
-    }
-    if (user.isActive == true) {
-      return response.status(400).json({ message: "user already activated" });
-    }
-    user.isActive = true;
-
-    user.save();
-    response.status(200).json({ message: "user activated successfully" });
   },
   login: async (request, response) => {
     try {
@@ -61,11 +37,6 @@ const userController = {
       const user = await User.findOne({ email });
       if (!user) {
         return response.status(400).json({ message: "User not found" });
-      }
-      if (!user.isActive) {
-        return response
-          .status(400)
-          .json({ message: "Please Activate your account" });
       }
       const isPasswordValid = await bcrypt.compare(password, user.password);
       if (!isPasswordValid) {
@@ -95,7 +66,6 @@ const userController = {
       response.status(500).send({ message: error.message });
     }
   },
-
   getProfile: async (request, response) => {
     try {
       const userId = request.userId;
@@ -120,50 +90,47 @@ const userController = {
       if (!user) {
         return response.status(400).json({ message: "User not found" });
       }
-      const key = randomString(28);
-
-      user.key = key;
+      const otp = OTPG();
+      user.otp = otp;
       user.save();
       transporter.sendMail({
         from: MAIL_ID,
         to: email,
         subject: "reset pasword",
-        text: `Click here to reset your password: ${URL}/verify/${key}`,
+        text: `This Your OTP:${otp}`,
       });
-      response
-        .status(200)
-        .json({ message: "password reset link is sended succesfully" });
+      response.status(200).json({ message: "OTP sended succesfully" });
     } catch (error) {
       response.status(500).json({ message: error.message });
     }
   },
   verify: async (request, response) => {
     try {
-      const key = request.params.key;
+      const { email, otp } = request.body;
 
-      const user = await User.findOne({ key });
+      const user = await User.findOne({ email });
 
-      if (!user) {
-        return response.status(400).json({ message: "Link was expiried" });
+      if (user.otp != otp) {
+        return response.status(400).json({ message: "Invalid OTP" });
       }
 
-      response.status(200).json({ message: "Link is verified succesfully" });
+      response.status(200).json({ message: "verified succesfully" });
     } catch (error) {
       response.status(500).json({ message: error.message });
     }
   },
   reset: async (request, response) => {
     try {
-      const { password, key } = request.body;
+      const { email, password, otp } = request.body;
 
-      const user = await User.findOne({ key });
+      const user = await User.findOne({ email });
 
-      if (!user) {
+      if (user.otp != otp) {
         return response.status(400).json({ message: "Link was expiried !!!" });
       }
       const hashedPassword = await bcrypt.hash(password, 10);
 
-      user.key = "";
+      user.otp = "";
 
       user.password = hashedPassword;
 
@@ -172,6 +139,27 @@ const userController = {
       response.status(200).json({ message: "Password is changed succesfully" });
     } catch (error) {
       response.status(500).json({ message: error.message });
+    }
+  },
+  update: async (request, response) => {
+    try {
+      const { age, gender, weight, height } = request.body;
+
+      const userId = request.userId;
+
+      const user = await User.findByIdAndUpdate(
+        userId,
+        { age, gender, weight, height },
+        { new: true }
+      ).select("-password -__v -_id");
+
+      if (!user) {
+        return response.status(404).send({ message: "User not found" });
+      }
+
+      response.status(200).json({ message: "form update successfully", user });
+    } catch (error) {
+      response.status(500).send({ message: error.message });
     }
   },
 };

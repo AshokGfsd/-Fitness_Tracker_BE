@@ -4,7 +4,7 @@ const foodController = {
   getAllFoodsController: async (request, response) => {
     try {
       const userId = request.userId;
-      const foods = await Food.find({ userId }).sort({ _id: -1 });
+      const foods = await Food.find({ user: userId }).sort({ _id: -1 });
       response.status(200).json({ messsage: "Fetched all foods", foods });
     } catch (error) {
       response.status(500).json({ error: error.message });
@@ -14,7 +14,7 @@ const foodController = {
     try {
       const { body } = request;
       const userId = request.userId;
-      const newFood = new Food({ ...body, userId });
+      const newFood = new Food({ ...body, user: userId });
       const savedFood = await newFood.save();
       response.status(200).json({ messsage: "Food created", savedFood });
     } catch (error) {

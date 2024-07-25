@@ -4,7 +4,7 @@ const goalController = {
   getAllGoalsController: async (request, response) => {
     try {
       const userId = request.userId;
-      const goals = await Goal.find({ userId }).sort({ _id: -1 });
+      const goals = await Goal.find({ user: userId }).sort({ _id: -1 });
       response.status(200).json({ messsage: "Fetched all goals", goals });
     } catch (error) {
       response.status(500).json({ error: error.message });
@@ -14,7 +14,7 @@ const goalController = {
     try {
       const { body } = request;
       const userId = request.userId;
-      const newGoal = new Goal({ ...body, userId });
+      const newGoal = new Goal({ ...body, user: userId });
       const savedGoal = await newGoal.save();
       response.status(200).json({ messsage: "Goal created", savedGoal });
     } catch (error) {

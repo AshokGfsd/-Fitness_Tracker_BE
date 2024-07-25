@@ -18,7 +18,7 @@ const userSchema = new mongoose.Schema({
     default: null,
   },
   gender: {
-    type: Number,
+    type: String,
     enum: ["male", "female"],
     default: null,
   },
@@ -30,19 +30,10 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: null,
   },
-  goals: {
-    default: [],
-  },
-  key: {
-    type: String,
+  otp: {
+    type: Number,
     default: "",
-  },
-  isActive: {
-    type: Boolean,
-    default: false,
   },
 });
 
 module.exports = mongoose.model("Users", userSchema, "users");
-
-

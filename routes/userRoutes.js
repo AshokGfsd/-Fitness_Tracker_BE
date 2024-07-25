@@ -8,9 +8,9 @@ userRouter.post("/", userController.register);
 userRouter.post("/login", userController.login);
 userRouter.post("/logout", userController.logout);
 userRouter.get("/profile", auth.verifyToken, userController.getProfile);
-userRouter.put("/activate/:id", userController.activate);
 userRouter.put("/forgot", userController.forgot);
-userRouter.get("/verify/:key", userController.verify);
+userRouter.post("/verify/", userController.verify);
 userRouter.put("/reset/", userController.reset);
+userRouter.put("/update", auth.verifyToken, userController.update);
 
 module.exports = userRouter;

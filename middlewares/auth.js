@@ -5,7 +5,6 @@ const auth = {
   verifyToken: (request, response, next) => {
     try {
       const { token } = request.cookies;
-
       if (!token) {
         return response.status(401).send({ message: "Access denied" });
       }

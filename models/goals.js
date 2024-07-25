@@ -22,7 +22,7 @@ const goalSchema = new mongoose.Schema({
     required: true,
   },
   
-  userId: {
+  user: {
     type: mongoose.Schema.Types.ObjectId,
     ref: "users",
     required: true,
