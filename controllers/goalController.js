@@ -26,7 +26,9 @@ const goalController = {
       const { goalId } = request.params;
       const goal = await Goal.findByIdAndDelete(goalId);
       if (!goal) {
-        return response.status(400).json("Incorrect ID no goal found");
+        return response
+          .status(400)
+          .json({ message: "Incorrect ID no goal found" });
       }
       response.status(200).json({ messsage: "Goal deleted" });
     } catch (error) {

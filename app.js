@@ -8,6 +8,7 @@ const cookieParser = require("cookie-parser");
 const requestLogger = require("./utils/logger");
 const unknownEndpoint = require("./utils/Error");
 const { URL } = require("./utils/config");
+const suggestionRouter = require("./routes/suggestionRoutes");
 
 app = express();
 app.use(
@@ -22,6 +23,7 @@ app.use("/users", requestLogger, userRouter);
 app.use("/goals", requestLogger, goalRouter);
 app.use("/exercises", requestLogger, exerciseRouter);
 app.use("/foods", requestLogger, foodRouter);
+app.use("/suggestions", requestLogger, suggestionRouter);
 app.use(unknownEndpoint);
 
 module.exports = app;

@@ -26,7 +26,9 @@ const foodController = {
       const { foodId } = request.params;
       const food = await Food.findByIdAndDelete(foodId);
       if (!food) {
-        return response.status(400).json("Incorrect ID no food found");
+        return response
+          .status(400)
+          .json({ message: "Incorrect ID no food found" });
       }
       response.status(200).json({ messsage: "Food deleted" });
     } catch (error) {
