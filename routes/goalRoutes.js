@@ -18,5 +18,10 @@ goalRouter.delete(
   auth.verifyToken,
   goalController.deleteGoalController
 );
+goalRouter.put(
+  "/:goalId",
+  auth.verifyToken,
+  goalController.update
+);
 
 module.exports = goalRouter;

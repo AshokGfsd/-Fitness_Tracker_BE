@@ -13,10 +13,15 @@ foodRouter.post(
   auth.verifyToken,
   foodController.createFoodController
 );
+
 foodRouter.delete(
   "/:foodId",
   auth.verifyToken,
   foodController.deleteFoodController
 );
-
+foodRouter.put(
+  "/:foodId",
+  auth.verifyToken,
+  foodController.update
+);
 module.exports = foodRouter;

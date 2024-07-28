@@ -30,6 +30,16 @@ const userSchema = new mongoose.Schema({
     type: Number,
     default: null,
   },
+  BMI: {
+    type: Number,
+    default: null,
+  },
+  suggestions: [
+    {
+      type: mongoose.Schema.Types.ObjectId,
+      ref: "Suggestion",
+    },
+  ],
   otp: {
     type: Number,
     default: "",

@@ -10,8 +10,13 @@ const suggestionSchema = new mongoose.Schema({
     type: Date,
     default: Date.now,
   },
+  updatedAt: {
+    type: Date,
+    default: Date.now,
+  },
   age: {
     type: String,
+    enum: ["0-18", "18-30", "31-50", "50-100"],
     required: true,
   },
   gender: {

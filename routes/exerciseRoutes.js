@@ -18,5 +18,6 @@ exerciseRouter.delete(
   auth.verifyToken,
   exerciseController.deleteExerciseController
 );
+exerciseRouter.put("/:exerciseId", auth.verifyToken, exerciseController.update);
 
 module.exports = exerciseRouter;

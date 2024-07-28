@@ -1,4 +1,5 @@
 const User = require("../models/users");
+const Suggestion = require("../models/suggestion");
 const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY, MAIL_ID, URL } = require("../utils/config");
@@ -70,7 +71,9 @@ const userController = {
     try {
       const userId = request.userId;
 
-      const user = await User.findById(userId).select("-password -__v -_id");
+      const user = await User.findById(userId).select(
+        "-password -__v -_id -otp"
+      );
 
       if (!user) {
         return response.status(404).send({ message: "User not found" });
@@ -143,15 +146,39 @@ const userController = {
   },
   update: async (request, response) => {
     try {
-      const { age, gender, weight, height } = request.body;
-
+      const { age, gender, weight, height, BMI } = request.body;
       const userId = request.userId;
+      let ageLimit = null;
 
+      if (age < 18) {
+        ageLimit = "0-18";
+      } else if (18 < age && age <= 30) {
+        ageLimit = "18-30";
+      } else if (31 <= age && age <= 50) {
+        ageLimit = "31-50";
+      } else if (age >= 51) {
+        ageLimit = "50-100";
+      }
+      let stage = null;
+      if (BMI < 18.5) {
+        stage = "Under weight";
+      } else if (18.5 < BMI && BMI <= 24.9) {
+        stage = "Normal weight";
+      } else if (25 < BMI && BMI <= 29.9) {
+        stage = "Over weight";
+      } else if (BMI >= 30) {
+        stage = "Obese";
+      }
+      const suggestions = await Suggestion.find({
+        stage,
+        age: ageLimit,
+        gender,
+      }).select({ _id: 1 });
       const user = await User.findByIdAndUpdate(
         userId,
-        { age, gender, weight, height },
+        { age, gender, weight, height, BMI, suggestions },
         { new: true }
-      ).select("-password -__v -_id");
+      ).select("-password -__v -_id -otp");
 
       if (!user) {
         return response.status(404).send({ message: "User not found" });

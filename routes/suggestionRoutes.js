@@ -6,12 +6,17 @@ const suggestionRouter = express.Router();
 suggestionRouter.get(
   "/",
   auth.verifyToken,
-  suggestionController.getAllSuggestionsController
+  suggestionController.getYourSuggestionsController
 );
 suggestionRouter.get(
-  "/today",
+  "/user",
   auth.verifyToken,
-  suggestionController.getTodaySuggestionsController
+  suggestionController.getSuggestionsByUserController
+);
+suggestionRouter.delete(
+  "/user/:suggestionId",
+  auth.verifyToken,
+  suggestionController.deleteSuggestionInUserController
 );
 suggestionRouter.post(
   "/",
@@ -22,6 +27,11 @@ suggestionRouter.delete(
   "/:suggestionId",
   auth.verifyToken,
   suggestionController.deleteSuggestionController
+);
+suggestionRouter.put(
+  "/:suggestionId",
+  auth.verifyToken,
+  suggestionController.update
 );
 
 module.exports = suggestionRouter;

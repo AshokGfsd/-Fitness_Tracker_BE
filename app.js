@@ -19,11 +19,13 @@ app.use(
 );
 app.use(express.json());
 app.use(cookieParser());
-app.use("/users", requestLogger, userRouter);
-app.use("/goals", requestLogger, goalRouter);
-app.use("/exercises", requestLogger, exerciseRouter);
-app.use("/foods", requestLogger, foodRouter);
-app.use("/suggestions", requestLogger, suggestionRouter);
+
+app.use(requestLogger);
+app.use("/users", userRouter);
+app.use("/goals", goalRouter);
+app.use("/exercises", exerciseRouter);
+app.use("/foods", foodRouter);
+app.use("/suggestions", suggestionRouter);
 app.use(unknownEndpoint);
 
 module.exports = app;
