@@ -4,15 +4,16 @@ const bcrypt = require("bcrypt");
 const jwt = require("jsonwebtoken");
 const { SECRET_KEY, MAIL_ID, URL } = require("../utils/config");
 const transporter = require("../utils/transporter");
+const ageCalculator = require("../utils/ageCalculator");
 const OTPG = require("../utils/OTPG");
 
 const userController = {
   register: async (request, response) => {
     try {
-      const { userName, email, password } = request.body;
+      const { userName, email, password, DOB, gender } = request.body;
 
       const user = await User.findOne({ email });
-
+      const age = ageCalculator(DOB);
       if (user) {
         return response
           .status(400)
@@ -22,6 +23,9 @@ const userController = {
 
       const newUser = new User({
         userName,
+        DOB,
+        gender,
+        age,
         email,
         password: hashedPassword,
       });
@@ -146,10 +150,44 @@ const userController = {
   },
   update: async (request, response) => {
     try {
-      const { age, gender, weight, height, BMI } = request.body;
+      const { userName, gender, weight, height, BMI } = request.body;
       const userId = request.userId;
       let ageLimit = null;
-
+      const user = await User.findOneAndUpdate(
+        {
+          _id: userId,
+          "BMI.date": {
+            $gte: new Date(year, month, day),
+            $lt: new Date(year, month, day + 1),
+          },
+        },
+        {
+          $pull: {
+            weight: {
+              date: {
+                $gte: new Date(year, month, day),
+                $lt: new Date(year, month, day + 1),
+              },
+            },
+            height: {
+              date: {
+                $gte: new Date(year, month, day),
+                $lt: new Date(year, month, day + 1),
+              },
+            },
+            BMI: {
+              date: {
+                $gte: new Date(year, month, day),
+                $lt: new Date(year, month, day + 1),
+              },
+            },
+          },
+        }
+      );
+      if (!user) {
+        return response.status(404).send({ message: "User not found" });
+      }
+      const age = ageCalculator(user.DOB);
       if (age < 18) {
         ageLimit = "0-18";
       } else if (18 < age && age <= 30) {
@@ -174,18 +212,112 @@ const userController = {
         age: ageLimit,
         gender,
       }).select({ _id: 1 });
-      const user = await User.findByIdAndUpdate(
+
+      const savedUser = await User.findByIdAndUpdate(
         userId,
-        { age, gender, weight, height, BMI, suggestions },
+        {
+          age,
+          userName,
+          $push: {
+            weight: [{ value: weight }],
+            height: [{ value: height }],
+            BMI: [{ value: BMI }],
+          },
+          suggestions,
+        },
         { new: true }
       ).select("-password -__v -_id -otp");
 
-      if (!user) {
-        return response.status(404).send({ message: "User not found" });
-      }
-
-      response.status(200).json({ message: "form update successfully", user });
+      response
+        .status(200)
+        .json({ message: "form update successfully", user: savedUser });
     } catch (error) {
+      response.status(500).send({ message: error.message });
+    }
+  },
+  todayUpdate: async (request, response) => {
+    try {
+      const { weight, height, BMI } = request.body;
+      const userId = request.userId;
+      let ageLimit = null;
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth();
+      const year = today.getFullYear();
+      const user = await User.findById(userId);
+
+      await User.findOneAndUpdate(
+        {
+          _id: userId,
+        },
+        {
+          $pull: {
+            weight: {
+              date: {
+                $gte: new Date(year, month, day),
+                $lt: new Date(year, month, day + 1),
+              },
+            },
+            height: {
+              date: {
+                $gte: new Date(year, month, day),
+                $lt: new Date(year, month, day + 1),
+              },
+            },
+            BMI: {
+              date: {
+                $gte: new Date(year, month, day),
+                $lt: new Date(year, month, day + 1),
+              },
+            },
+          },
+        }
+      );
+
+      const age = ageCalculator(user.DOB);
+      if (age < 18) {
+        ageLimit = "0-18";
+      } else if (18 < age && age <= 30) {
+        ageLimit = "18-30";
+      } else if (31 <= age && age <= 50) {
+        ageLimit = "31-50";
+      } else if (age >= 51) {
+        ageLimit = "50-100";
+      }
+      let stage = null;
+      if (BMI < 18.5) {
+        stage = "Under weight";
+      } else if (18.5 < BMI && BMI <= 24.9) {
+        stage = "Normal weight";
+      } else if (25 < BMI && BMI <= 29.9) {
+        stage = "Over weight";
+      } else if (BMI >= 30) {
+        stage = "Obese";
+      }
+      const suggestions = await Suggestion.find({
+        stage,
+        age: ageLimit,
+        gender: user.gender,
+      }).select({ _id: 1 });
+      const savedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          age,
+          $push: {
+            weight: [{ value: weight }],
+            height: [{ value: height }],
+            BMI: [{ value: BMI }],
+          },
+          suggestions,
+        },
+        { new: true }
+      ).select("-password -__v -_id -otp");
+
+      response
+        .status(200)
+        .json({ message: "form update successfully", user: savedUser });
+    } catch (error) {
+      console.log(error);
       response.status(500).send({ message: error.message });
     }
   },

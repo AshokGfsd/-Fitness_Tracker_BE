@@ -12,5 +12,6 @@ userRouter.put("/forgot", userController.forgot);
 userRouter.post("/verify/", userController.verify);
 userRouter.put("/reset/", userController.reset);
 userRouter.put("/update", auth.verifyToken, userController.update);
+userRouter.put("/update/today", auth.verifyToken, userController.todayUpdate);
 
 module.exports = userRouter;

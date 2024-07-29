@@ -151,6 +151,9 @@ const suggestionController = {
       if (!suggestion) {
         return response.status(404).send({ message: "suggestion not found" });
       }
+      if (suggestion.user != userId) {
+        return response.status(404).send({ message: "suggestion not found" });
+      }
 
       const updatedAt = new Date();
       const updateSuggestion = await Suggestion.findByIdAndUpdate(

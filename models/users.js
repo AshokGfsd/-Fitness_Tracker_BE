@@ -13,6 +13,10 @@ const userSchema = new mongoose.Schema({
     type: String,
     required: true,
   },
+  DOB: {
+    type: String,
+    required: true,
+  },
   age: {
     type: Number,
     default: null,
@@ -20,20 +24,44 @@ const userSchema = new mongoose.Schema({
   gender: {
     type: String,
     enum: ["male", "female"],
-    default: null,
+    required: true,
   },
-  weight: {
-    type: Number,
-    default: null,
-  },
-  height: {
-    type: Number,
-    default: null,
-  },
-  BMI: {
-    type: Number,
-    default: null,
-  },
+  weight: [
+    {
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+      value: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
+  height: [
+    {
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+      value: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
+  BMI: [
+    {
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+      value: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
   suggestions: [
     {
       type: mongoose.Schema.Types.ObjectId,
