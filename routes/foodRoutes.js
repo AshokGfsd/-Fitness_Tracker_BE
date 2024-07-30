@@ -8,6 +8,11 @@ foodRouter.get(
   auth.verifyToken,
   foodController.getAllFoodsController
 );
+foodRouter.get(
+  "/today",
+  auth.verifyToken,
+  foodController.getTodayFoodsController
+);
 foodRouter.post(
   "/",
   auth.verifyToken,

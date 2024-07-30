@@ -62,6 +62,30 @@ const userSchema = new mongoose.Schema({
       },
     },
   ],
+  calories: [
+    {
+      date: {
+        type: Date,
+        default: Date.now,
+      },
+      totalCaloriesBurned: {
+        type: Number,
+        required: true,
+      },
+      totalCaloriesConsumed: {
+        type: Number,
+        required: true,
+      },
+      totalCaloriesGoal: {
+        type: Number,
+        required: true,
+      },
+      remainingCaloriestoGoal: {
+        type: Number,
+        required: true,
+      },
+    },
+  ],
   suggestions: [
     {
       type: mongoose.Schema.Types.ObjectId,

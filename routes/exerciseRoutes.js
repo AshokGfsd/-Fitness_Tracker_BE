@@ -8,6 +8,12 @@ exerciseRouter.get(
   auth.verifyToken,
   exerciseController.getAllExercisesController
 );
+
+exerciseRouter.get(
+  "/today",
+  auth.verifyToken,
+  exerciseController.getTodayExercisesController
+);
 exerciseRouter.post(
   "/",
   auth.verifyToken,

@@ -13,5 +13,10 @@ userRouter.post("/verify/", userController.verify);
 userRouter.put("/reset/", userController.reset);
 userRouter.put("/update", auth.verifyToken, userController.update);
 userRouter.put("/update/today", auth.verifyToken, userController.todayUpdate);
+userRouter.put(
+  "/update/calories",
+  auth.verifyToken,
+  userController.todayCalUpdate
+);
 
 module.exports = userRouter;

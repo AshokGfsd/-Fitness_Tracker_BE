@@ -8,6 +8,11 @@ goalRouter.get(
   auth.verifyToken,
   goalController.getAllGoalsController
 );
+goalRouter.get(
+  "/today",
+  auth.verifyToken,
+  goalController.getTodayGoalsController
+);
 goalRouter.post(
   "/",
   auth.verifyToken,

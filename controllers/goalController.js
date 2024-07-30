@@ -11,6 +11,25 @@ const goalController = {
       response.status(500).json({ error: error.message });
     }
   },
+  getTodayGoalsController: async (request, response) => {
+    try {
+      const userId = request.userId;
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth();
+      const year = today.getFullYear();
+      const goals = await Goal.find({
+        user: userId,
+        createdAt: {
+          $gte: new Date(year, month, day),
+          $lt: new Date(year, month, day + 1),
+        },
+      }).sort({ _id: -1 });
+      response.status(200).json({ messsage: "Fetched all goals", goals });
+    } catch (error) {
+      response.status(500).json({ error: error.message });
+    }
+  },
   createGoalController: async (request, response) => {
     try {
       const {

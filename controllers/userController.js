@@ -150,8 +150,12 @@ const userController = {
   },
   update: async (request, response) => {
     try {
-      const { userName, gender, weight, height, BMI } = request.body;
+      const { userName, DOB, gender, weight, height, BMI } = request.body;
       const userId = request.userId;
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth();
+      const year = today.getFullYear();
       let ageLimit = null;
       const user = await User.findOneAndUpdate(
         {
@@ -218,6 +222,7 @@ const userController = {
         {
           age,
           userName,
+          DOB,
           $push: {
             weight: [{ value: weight }],
             height: [{ value: height }],
@@ -309,6 +314,61 @@ const userController = {
             BMI: [{ value: BMI }],
           },
           suggestions,
+        },
+        { new: true }
+      ).select("-password -__v -_id -otp");
+
+      response
+        .status(200)
+        .json({ message: "form update successfully", user: savedUser });
+    } catch (error) {
+      console.log(error);
+      response.status(500).send({ message: error.message });
+    }
+  },
+  todayCalUpdate: async (request, response) => {
+    try {
+      const {
+        totalCaloriesBurned,
+        totalCaloriesConsumed,
+        totalCaloriesGoal,
+        remainingCaloriestoGoal,
+      } = request.body;
+      const userId = request.userId;
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth();
+      const year = today.getFullYear();
+
+      const user = await User.findById(userId);
+      await User.findOneAndUpdate(
+        {
+          _id: userId,
+        },
+        {
+          $pull: {
+            calories: {
+              date: {
+                $gte: new Date(year, month, day),
+                $lt: new Date(year, month, day + 1),
+              },
+            },
+          },
+        }
+      );
+      const savedUser = await User.findByIdAndUpdate(
+        userId,
+        {
+          $push: {
+            calories: [
+              {
+                totalCaloriesBurned,
+                totalCaloriesConsumed,
+                totalCaloriesGoal,
+                remainingCaloriestoGoal,
+              },
+            ],
+          },
         },
         { new: true }
       ).select("-password -__v -_id -otp");

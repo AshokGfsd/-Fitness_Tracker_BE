@@ -13,6 +13,27 @@ const exerciseController = {
       response.status(500).json({ error: error.message });
     }
   },
+  getTodayExercisesController: async (request, response) => {
+    try {
+      const userId = request.userId;
+      const today = new Date();
+      const day = today.getDate();
+      const month = today.getMonth();
+      const year = today.getFullYear();
+      const exercises = await Exercise.find({
+        user: userId,
+        createdAt: {
+          $gte: new Date(year, month, day),
+          $lt: new Date(year, month, day + 1),
+        },
+      }).sort({ _id: -1 });
+      response
+        .status(200)
+        .json({ messsage: "Fetched all exercies", exercises });
+    } catch (error) {
+      response.status(500).json({ error: error.message });
+    }
+  },
   createExerciseController: async (request, response) => {
     try {
       const { _id, caloriesBurnt, duration, exerciseType, name } = request.body;
