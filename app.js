@@ -11,12 +11,15 @@ const { URL } = require("./utils/config");
 const suggestionRouter = require("./routes/suggestionRoutes");
 console.log("This",URL)
 app = express();
-app.use(
-  cors({
-    origin: "*",
-    credentials: true,
-  })
-);
+// app.use(
+//   cors({
+//     origin: "*",
+//     credentials: true,
+//   })
+// );
+app.use(cors({
+  origin: '*', 
+}));
 app.use(express.json());
 app.use(cookieParser());
 
