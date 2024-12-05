@@ -13,7 +13,7 @@ const suggestionRouter = require("./routes/suggestionRoutes");
 app = express();
 app.use(
   cors({
-    origin: [URL,"*"],
+    origin: ["*"],
     credentials: true,
   })
 );
